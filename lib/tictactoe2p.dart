@@ -7,7 +7,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'ad_helper.dart';
 
 class TicTacToe2PPage extends StatefulWidget {
-  const TicTacToe2PPage({super.key});
+  const TicTacToe2PPage({Key? key}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -49,17 +49,37 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final bottomSheet = (screenWidth - 32);
         return Container(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+                bottomLeft: Radius.zero,
+                bottomRight: Radius.zero),
+            color: color,
+          ),
+          width: bottomSheet,
           height: 200.0,
-          color: color,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Icon(icon, size: 50.0),
+                Icon(
+                  icon,
+                  size: 50.0,
+                  color: Colors.white,
+                ),
                 const SizedBox(height: 10.0),
-                Text(message, style: const TextStyle(fontSize: 24.0)),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    fontSize: 24.0,
+                    color: Colors.white,
+                  ),
+                ),
                 const SizedBox(height: 10.0),
               ],
             ),
@@ -130,33 +150,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     }
   }
 
-  Widget _buildBox(int row, int col) {
-    return GestureDetector(
-      onTap: () => _markBox(row, col),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints.tightForFinite(width: 300),
-        child: SizedBox(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.center,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: ColoredBox(
-                color: Colors.blue,
-                child: Center(
-                  child: Text(
-                    board[row][col],
-                    style: const TextStyle(fontSize: 80),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
- 
   BannerAd? bannerAd;
   @override
   void initState() {
@@ -165,7 +158,9 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       size: AdSize.banner,
-      request: const AdRequest(),
+      request: const AdRequest(
+        keywords: <String>[],
+      ),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
@@ -181,6 +176,45 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     ).load();
   }
 
+  Widget _buildBox(int row, int col, bool right, bool bottom) {
+    return GestureDetector(
+      onTap: () => _markBox(row, col),
+      child: OrientationBuilder(
+        builder: (context, orientation) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final boxSize = (screenWidth - 32) / 3;
+          return SizedBox(
+            width: boxSize,
+            height: boxSize,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                      color: right
+                          ? Theme.of(context).dividerColor
+                          : Colors.transparent),
+                  bottom: BorderSide(
+                      color: bottom
+                          ? Theme.of(context).dividerColor
+                          : Colors.transparent),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  board[row][col],
+                  style: const TextStyle(
+                    fontSize: 80,
+                    color: Color.fromARGB(255, 238, 187, 112),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
@@ -190,59 +224,116 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
             brightness: const ColorScheme.light().brightness,
             useMaterial3: true,
           ),
-          home: Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.of(context).pop(),
+          home: SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                title: const Text('A Véia'),
               ),
-              title: const Text('A Véia'),
-            ),
-            body: FutureBuilder<void>(
-                future: _initGoogleMobileAds(),
-                builder: (context, AsyncSnapshot<void> snapshot) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        child: bannerAds(context),
-                      ),
-                      Row(
-                        children: [
-                          Column(
+              body: FutureBuilder<void>(
+                  future: _initGoogleMobileAds(),
+                  builder: (context, AsyncSnapshot<void> snapshot) {
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Row(
-                                children: <Widget>[
-                                  _buildBox(0, 0),
-                                  _buildBox(0, 1),
-                                  _buildBox(0, 2),
-                                ],
+                              const Flexible(
+                                fit: FlexFit.tight,
+                                child: Card(
+                                  elevation: 5,
+                                  color: Color.fromARGB(255, 138, 140, 155),
+                                  child: SizedBox(
+                                    width: 400,
+                                    height: 400,
+                                    child: Column(
+                                      children: [
+                                        Text('Placar'),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Column(
+                                              children: [
+                                                Text('Player 1'),
+                                              ],
+                                            ),
+                                            Column(
+                                              children: [Text('Player 2')],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
-                              Row(
-                                children: <Widget>[
-                                  _buildBox(1, 0),
-                                  _buildBox(1, 1),
-                                  _buildBox(1, 2),
-                                ],
+                              SizedBox(
+                                child: bannerAds(context),
                               ),
-                              Row(
-                                children: <Widget>[
-                                  _buildBox(2, 0),
-                                  _buildBox(2, 1),
-                                  _buildBox(2, 2),
-                                ],
+                              SizedBox(
+                                child: Column(
+                                  children: [
+                                    Card(
+                                      color: const Color.fromARGB(
+                                          255, 84, 84, 116),
+                                      elevation: 5,
+                                      child: Wrap(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              _buildBox(0, 0, true, true),
+                                              _buildBox(0, 1, true, true),
+                                              _buildBox(0, 2, false, true),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              _buildBox(1, 0, true, true),
+                                              _buildBox(1, 1, true, true),
+                                              _buildBox(1, 2, false, true),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              _buildBox(2, 0, true, false),
+                                              _buildBox(2, 1, true, false),
+                                              _buildBox(2, 2, false, false),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24.0),
+                                    ElevatedButton(
+                                      onPressed: _resetBoard,
+                                      child: const Text('Reset'),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 24.0),
-                              ElevatedButton(
-                                onPressed: _resetBoard,
-                                child: const Text('Reset'),
-                              ),
+                              const Flexible(
+                                  fit: FlexFit.tight,
+                                  child: SizedBox(
+                                    height: 100,
+                                  ))
                             ],
                           ),
-                        ],
-                      ),
-                    ],
-                  );
-                }),
+                        ),
+                      ],
+                    );
+                  }),
+            ),
           ),
         );
       },
