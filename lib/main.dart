@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'dart:io' show Platform;
 
 import 'tictactoe2p.dart';
-import 'tictactoesp.dart';
 import 'ad_helper.dart';
 
 void main() {
@@ -26,7 +26,6 @@ class GameRoomApp extends StatelessWidget {
             useMaterial3: true,
             brightness: const ColorScheme.light().brightness,
             colorScheme: lightDynamic),
-        title: 'Game Room',
         home: const PaginaInicial(),
       );
     });
@@ -46,26 +45,29 @@ class _PaginaInicialState extends State<PaginaInicial> {
   @override
   void initState() {
     super.initState();
-    BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            bannerAd = ad as BannerAd;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          // Releases an ad resource when it fails to load
-          ad.dispose();
-          if (kDebugMode) {
-            print(
-                'Ad load failed (code=${error.code} message=${error.message})');
-          }
-        },
-      ),
-    ).load();
+
+    if (Platform.isAndroid) {
+      BannerAd(
+        adUnitId: AdHelper.bannerAdUnitId,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            setState(() {
+              bannerAd = ad as BannerAd;
+            });
+          },
+          onAdFailedToLoad: (ad, error) {
+            // Releases an ad resource when it fails to load
+            ad.dispose();
+            if (kDebugMode) {
+              print(
+                  'Ad load failed (code=${error.code} message=${error.message})');
+            }
+          },
+        ),
+      ).load();
+    }
   }
 
   @override
@@ -89,156 +91,99 @@ class _PaginaInicialState extends State<PaginaInicial> {
               centerTitle: true,
             ),
             body: FutureBuilder(
-                future: _initGoogleMobileAds(),
-                builder: (context, AsyncSnapshot<void> snapshot) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          child: bannerAds(context),
+              future: _initGoogleMobileAds(),
+              builder: (context, AsyncSnapshot<void> snapshot) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          child: Platform.isAndroid == true
+                              ? bannerAds(context)
+                              : null,
                         ),
-                        Center(
-                          child: GridView(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    mainAxisSpacing: 16,
-                                    crossAxisSpacing: 16),
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return const TicTacToe2PPage();
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: Card(
-                                  elevation: 6,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      FittedBox(
-                                        child: Stack(
-                                          children: [
-                                            Stack(
-                                              children: [
-                                                const Stack(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.tag_sharp,
-                                                      size: 140,
-                                                    ),
-                                                    Positioned(
-                                                      bottom: 22,
-                                                      right: 22,
-                                                      child: Icon(
-                                                        Icons.circle_outlined,
-                                                        color: Colors.green,
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                Positioned(
-                                                  top: 22,
-                                                  left: 22,
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    color: const ColorScheme
-                                                            .light()
-                                                        .error,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const Positioned(
-                                              bottom: 0,
-                                              left: 28,
-                                              child: Text('2 Players'),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                      ),
+                      Center(
+                        child: GridView(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  mainAxisSpacing: 16,
+                                  crossAxisSpacing: 16),
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return const TicTacToe2PPage();
+                                    },
                                   ),
+                                );
+                              },
+                              child: Card(
+                                elevation: 6,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    FittedBox(
+                                      child: Stack(
+                                        children: [
+                                          Stack(
+                                            children: [
+                                              const Stack(
+                                                children: [
+                                                  Icon(
+                                                    Icons.tag_sharp,
+                                                    size: 140,
+                                                  ),
+                                                  Positioned(
+                                                    bottom: 22,
+                                                    right: 22,
+                                                    child: Icon(
+                                                      Icons.circle_outlined,
+                                                      color: Colors.green,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              Positioned(
+                                                top: 22,
+                                                left: 22,
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color:
+                                                      const ColorScheme.light()
+                                                          .error,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const Positioned(
+                                            bottom: 0,
+                                            left: 28,
+                                            child: Text('TicTacToe'),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return const TicTacToePage();
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: Card(
-                                  elevation: 6,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      FittedBox(
-                                        child: Stack(
-                                          children: [
-                                            Stack(
-                                              children: [
-                                                const Stack(
-                                                  children: [
-                                                    FittedBox(
-                                                      child: Icon(
-                                                        Icons.tag_sharp,
-                                                        size: 140,
-                                                      ),
-                                                    ),
-                                                    Positioned(
-                                                      bottom: 22,
-                                                      right: 22,
-                                                      child: Icon(
-                                                        Icons.circle_outlined,
-                                                        color: Colors.green,
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                Positioned(
-                                                  top: 22,
-                                                  left: 22,
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    color: const ColorScheme
-                                                            .light()
-                                                        .error,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const Positioned(
-                                              bottom: 0,
-                                              left: 28,
-                                              child: Text('Single Player'),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                }),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         );
       },
