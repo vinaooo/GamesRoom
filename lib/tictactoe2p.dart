@@ -1,13 +1,16 @@
 // ignore_for_file: avoid_print
+import 'dart:math';
+
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:io' show Platform;
+import 'package:random_text_reveal/random_text_reveal.dart';
 
 import 'ad_helper.dart';
 
-String player1Score = '10';
-String player2Score = '10';
+int player1Score = 0;
+int player2Score = 0;
 
 class TicTacToe2PPage extends StatefulWidget {
   const TicTacToe2PPage({Key? key}) : super(key: key);
@@ -36,10 +39,12 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     Color color;
 
     if (winner == 'X') {
+      player1Score++;
       message = 'Player 1 Wins!';
       icon = Icons.mood;
       color = Colors.green;
     } else if (winner == 'O') {
+      player2Score++;
       message = 'Player 2 Wins!';
       icon = Icons.mood;
       color = const ColorScheme.dark().errorContainer;
@@ -48,7 +53,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
       icon = Icons.sentiment_neutral;
       color = Colors.yellow;
     }
-
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
@@ -157,6 +161,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   @override
   void initState() {
     super.initState();
+    _resetScore();
     if (Platform.isAndroid) {
       BannerAd(
         adUnitId: AdHelper.bannerAdUnitId,
@@ -187,7 +192,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
       child: OrientationBuilder(
         builder: (context, orientation) {
           final screenWidth = MediaQuery.of(context).size.width;
-          final boxSize = (screenWidth - 32) / 3;
+          final boxSize = screenWidth * 0.3;
           return SizedBox(
             width: boxSize,
             height: boxSize,
@@ -208,9 +213,15 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                 child: Text(
                   board[row][col],
                   style: const TextStyle(
-                    fontSize: 80,
-                    color: Color.fromARGB(255, 238, 187, 112),
-                  ),
+                      fontSize: 80,
+                      color: Color.fromARGB(255, 238, 187, 112),
+                      shadows: [
+                        Shadow(
+                          color: Colors.black,
+                          offset: Offset(0.3, 0.3),
+                          blurRadius: 7,
+                        ),
+                      ]),
                 ),
               ),
             ),
@@ -222,6 +233,8 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final heightSize = screenHeight * 0.00675;
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return MaterialApp(
@@ -288,8 +301,16 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(height: 24.0),
+                                    SizedBox(height: heightSize),
                                     ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        elevation: 3,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0)),
+                                        minimumSize:
+                                            const Size(50, 30), //////// HERE
+                                      ),
                                       onPressed: _resetBoard,
                                       child: const Text('Reset'),
                                     ),
@@ -315,137 +336,152 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   }
 
   Widget scoreTable(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final double cardHeight = constraints.maxHeight * 0.3;
-        final double playerScoreFontSize = constraints.maxWidth * 0.15;
-        final double playerNameFontSize = constraints.maxWidth * 0.06;
-        final double bannerHeight = constraints.maxHeight * 0.2;
-
-        return SizedBox(
-          height: cardHeight,
-          child: Card(
-            elevation: 5,
-            color: const Color.fromARGB(255, 138, 140, 155),
-            child: Column(
-              children: [
-                const Text(
-                  'Score',
-                  style: TextStyle(
-                    fontSize: 40,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        color: Colors.purple,
-                        offset: Offset(0, 0),
-                        blurRadius: 60,
-                      )
+    double screenHeight = MediaQuery.of(context).size.height;
+    MediaQueryData queryData = MediaQuery.of(context);
+    double fontSize = queryData.size.height;
+    return SizedBox(
+      height: screenHeight * 0.26,
+      child: Column(
+        children: [
+          Expanded(
+            child: Card(
+              elevation: 5,
+              color: const Color.fromARGB(255, 138, 140, 155),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SizedBox(
+                          width: fontSize * 0.14,
+                        ),
+                        Text(
+                          'Score',
+                          style: TextStyle(
+                            fontSize: fontSize * 0.045,
+                            color: Colors.white,
+                            shadows: const [
+                              Shadow(
+                                color: Colors.purple,
+                                offset: Offset(0, 0),
+                                blurRadius: 60,
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: fontSize * 0.14,
+                          child: TextButton(
+                            onPressed: () {
+                              _resetScore();
+                            },
+                            child: Text(
+                              'Reset Score',
+                              style: TextStyle(
+                                fontSize: fontSize * 0.012,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            'Player 1',
+                            style: TextStyle(
+                              fontSize: fontSize * 0.024,
+                              color: Colors.white,
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black,
+                                  offset: Offset(1, 1),
+                                  blurRadius: 10,
+                                )
+                              ],
+                            ),
+                          ),
+                          Text(
+                            player1Score.toString(),
+                            style: TextStyle(
+                              fontFamily: 'lcddot',
+                              fontSize: fontSize * 0.09,
+                              height: 0.8,
+                              color: const Color.fromARGB(255, 239, 184, 16),
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black,
+                                  offset: Offset(0.5, 0.5),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Player 2',
+                            style: TextStyle(
+                              fontSize: fontSize * 0.024,
+                              color: Colors.white,
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black,
+                                  offset: Offset(1, 1),
+                                  blurRadius: 10,
+                                )
+                              ],
+                            ),
+                          ),
+                          RandomTextReveal(
+                            text: player2Score.toString(),
+                            initialText: "0D",
+                            duration: const Duration(seconds: 1),
+                            style: TextStyle(
+                              fontFamily: 'lcddot',
+                              fontSize: fontSize * 0.09,
+                              height: 0.8,
+                              color: const Color.fromARGB(255, 239, 184, 16),
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black,
+                                  offset: Offset(0.5, 0.5),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            randomString: Source.alphabets,
+                            curve: Curves.easeIn,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          'Player 1',
-                          style: TextStyle(
-                            fontSize: playerNameFontSize,
-                            color: Colors.white,
-                            shadows: const [
-                              Shadow(
-                                color: Colors.black,
-                                offset: Offset(1, 1),
-                                blurRadius: 10,
-                              )
-                            ],
-                          ),
-                        ),
-                        Text(
-                          player1Score,
-                          style: TextStyle(
-                            fontFamily: 'lcddot',
-                            fontSize: playerScoreFontSize,
-                            height: 0.8,
-                            color: const Color.fromARGB(255, 239, 184, 16),
-                            shadows: const [
-                              Shadow(
-                                color: Colors.black,
-                                offset: Offset(0.5, 0.5),
-                                blurRadius: 10,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Player 2',
-                          style: TextStyle(
-                            fontSize: playerNameFontSize,
-                            color: Colors.white,
-                            shadows: const [
-                              Shadow(
-                                color: Colors.black,
-                                offset: Offset(1, 1),
-                                blurRadius: 10,
-                              )
-                            ],
-                          ),
-                        ),
-                        Text(
-                          player2Score,
-                          style: TextStyle(
-                            fontFamily: 'lcddot',
-                            fontSize: playerScoreFontSize,
-                            height: 0.8,
-                            color: const Color.fromARGB(255, 239, 184, 16),
-                            shadows: const [
-                              Shadow(
-                                color: Colors.black,
-                                offset: Offset(0.5, 0.5),
-                                blurRadius: 10,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Flexible(
-                  flex: 1,
-                  child: SizedBox(
-                    height: bannerHeight,
-                    child: bannerAds(context),
-                  ),
-                ),
-              ],
+                  bannerAds(context),
+                ],
+              ),
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
-// const Align(
-//                 alignment: Alignment.topRight,
-//                 child: ElevatedButton(
-//                   onPressed: null,
-//                   child: Text(
-//                     'Score reset',
-//                     style: TextStyle(
-//                       color: Colors.white,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-  Future<InitializationStatus> _initGoogleMobileAds() {
-    return MobileAds.instance.initialize();
+  void _resetScore() {
+    setState(() {
+      player1Score = 0;
+      player2Score = 0;
+    });
   }
 
   static bannerAds(BuildContext context) {
@@ -467,5 +503,9 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
         ),
       );
     });
+  }
+
+  Future<InitializationStatus> _initGoogleMobileAds() {
+    return MobileAds.instance.initialize();
   }
 }
