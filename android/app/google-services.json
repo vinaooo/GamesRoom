@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "503524466422",
+    "project_id": "games-room-b1b2d",
+    "storage_bucket": "games-room-b1b2d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:503524466422:android:a2cbcaef8263d1277596d7",
+        "android_client_info": {
+          "package_name": "com.example.gamesroom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "503524466422-m33pjh3643velqk62lsg2l4kd3mahuql.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5BQ2LHY16nd2zitF67rZcbIZN46a5jHg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "503524466422-m33pjh3643velqk62lsg2l4kd3mahuql.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

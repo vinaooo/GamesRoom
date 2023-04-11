@@ -3,15 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:io' show Platform;
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'tictactoe2p.dart';
 import 'ad_helper.dart';
 
-void main() {
+Future<void> main() async {
   runApp(
     const GameRoomApp(),
   );
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 }
 
 class GameRoomApp extends StatelessWidget {
