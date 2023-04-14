@@ -1,16 +1,18 @@
 // ignore_for_file: avoid_print
-import 'dart:math';
-
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:io' show Platform;
 import 'package:random_text_reveal/random_text_reveal.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:neon/neon.dart';
+import 'dart:math';
 
 import 'ad_helper.dart';
 
 int player1Score = 0;
 int player2Score = 0;
+String scoreName = 'Score';
 
 class TicTacToe2PPage extends StatefulWidget {
   const TicTacToe2PPage({Key? key}) : super(key: key);
@@ -35,23 +37,23 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
 
   void _showWinnerAnimation(String winner) {
     String message;
-    IconData icon;
-    Color color;
+    IconData icon = Icons.mood;
+    Color color = Colors.green;
 
     if (winner == 'X') {
       player1Score++;
       message = 'Player 1 Wins!';
-      icon = Icons.mood;
-      color = Colors.green;
     } else if (winner == 'O') {
       player2Score++;
       message = 'Player 2 Wins!';
-      icon = Icons.mood;
-      color = const ColorScheme.dark().errorContainer;
     } else {
       message = 'It\'s a Tie!';
       icon = Icons.sentiment_neutral;
       color = Colors.yellow;
+    }
+    if (winner == 'X' || winner == 'O') {
+      icon = Icons.mood;
+      color = Colors.green;
     }
     showModalBottomSheet<void>(
       context: context,
@@ -80,13 +82,35 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                   color: Colors.white,
                 ),
                 const SizedBox(height: 10.0),
-                Text(
-                  message,
-                  style: const TextStyle(
-                    fontSize: 24.0,
-                    color: Colors.white,
+                RandomTextReveal(
+                  text: message,
+                  initialText: "pknmerwemainmr",
+                  duration: const Duration(milliseconds: 1500),
+                  style: GoogleFonts.ubuntuMono(
+                    textStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24.0,
+                    ),
+                    shadows: [
+                      const Shadow(
+                        color: Colors.black,
+                        offset: Offset(0.5, 0.5),
+                        blurRadius: 10,
+                      ),
+                    ],
                   ),
+                  randomString: Source.alphabets,
+                  curve: Curves.easeIn,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
+                // Text(
+                //   message,
+                //   style: const TextStyle(
+                //     fontSize: 24.0,
+                //     color: Colors.white,
+                //   ),
+                // ),
                 const SizedBox(height: 10.0),
               ],
             ),
@@ -117,8 +141,8 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
 
   @override
   void dispose() {
-    bannerAd?.dispose();
     super.dispose();
+    bannerAd?.dispose();
   }
 
   void _checkWinner() {
@@ -152,7 +176,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     // check for tie
     if (!board.any((row) => row.contains(''))) {
       _showWinnerAnimation('tie');
-      //_disableBoard();
       return;
     }
   }
@@ -212,10 +235,11 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
               child: Center(
                 child: Text(
                   board[row][col],
-                  style: const TextStyle(
+                  style: TextStyle(
+                      fontFamily: 'chalk',
                       fontSize: 80,
-                      color: Color.fromARGB(255, 238, 187, 112),
-                      shadows: [
+                      color: player1Turn == true ? Colors.green : Colors.red,
+                      shadows: const [
                         Shadow(
                           color: Colors.black,
                           offset: Offset(0.3, 0.3),
@@ -239,7 +263,8 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return MaterialApp(
           theme: ThemeData(
-            brightness: const ColorScheme.light().brightness,
+            colorSchemeSeed: Colors.indigo,
+            brightness: const ColorScheme.dark().brightness,
             useMaterial3: true,
           ),
           home: SafeArea(
@@ -249,7 +274,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
-                title: const Text('A Véia'),
+                title: const Text('Tic Tac Toe'),
               ),
               body: FutureBuilder<void>(
                   future: _initGoogleMobileAds(),
@@ -266,8 +291,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                                 child: Column(
                                   children: [
                                     Card(
-                                      color: const Color.fromARGB(
-                                          255, 84, 84, 116),
                                       elevation: 5,
                                       child: Wrap(
                                         children: [
@@ -308,8 +331,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(10.0)),
-                                        minimumSize:
-                                            const Size(50, 30), //////// HERE
+                                        minimumSize: const Size(50, 30),
                                       ),
                                       onPressed: _resetBoard,
                                       child: const Text('Reset'),
@@ -345,8 +367,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
         children: [
           Expanded(
             child: Card(
-              elevation: 5,
-              color: const Color.fromARGB(255, 138, 140, 155),
               child: Column(
                 children: [
                   Expanded(
@@ -356,19 +376,16 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                         SizedBox(
                           width: fontSize * 0.14,
                         ),
-                        Text(
-                          'Score',
-                          style: TextStyle(
-                            fontSize: fontSize * 0.045,
-                            color: Colors.white,
-                            shadows: const [
-                              Shadow(
-                                color: Colors.purple,
-                                offset: Offset(0, 0),
-                                blurRadius: 60,
-                              )
-                            ],
-                          ),
+                        Neon(
+                          text: scoreName,
+                          color: Colors.purple,
+                          fontSize: fontSize * 0.045,
+                          font: NeonFont.TextMeOne,
+                          flickeringText: true,
+                          flickeringLetters: [
+                            Random().nextInt(scoreName.length),
+                            Random().nextInt(scoreName.length)
+                          ],
                         ),
                         SizedBox(
                           width: fontSize * 0.14,
@@ -406,8 +423,10 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                               ],
                             ),
                           ),
-                          Text(
-                            player1Score.toString(),
+                          RandomTextReveal(
+                            text: '$player1Score',
+                            initialText: "7",
+                            duration: const Duration(milliseconds: 1000),
                             style: TextStyle(
                               fontFamily: 'lcddot',
                               fontSize: fontSize * 0.09,
@@ -421,6 +440,10 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                                 ),
                               ],
                             ),
+                            randomString: Source.digits,
+                            curve: Curves.easeIn,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ],
                       ),
@@ -442,9 +465,9 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                             ),
                           ),
                           RandomTextReveal(
-                            text: player2Score.toString(),
-                            initialText: "0D",
-                            duration: const Duration(seconds: 1),
+                            text: '$player2Score',
+                            initialText: "3",
+                            duration: const Duration(milliseconds: 1200),
                             style: TextStyle(
                               fontFamily: 'lcddot',
                               fontSize: fontSize * 0.09,
@@ -458,7 +481,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                                 ),
                               ],
                             ),
-                            randomString: Source.alphabets,
+                            randomString: Source.digits,
                             curve: Curves.easeIn,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -484,6 +507,10 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     });
   }
 
+  Future<InitializationStatus> _initGoogleMobileAds() {
+    return MobileAds.instance.initialize();
+  }
+
   static bannerAds(BuildContext context) {
     return Builder(builder: (ctx) {
       final BannerAd myBanner = BannerAd(
@@ -503,9 +530,5 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
         ),
       );
     });
-  }
-
-  Future<InitializationStatus> _initGoogleMobileAds() {
-    return MobileAds.instance.initialize();
   }
 }

@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 import 'tictactoe2p.dart';
-import 'ad_helper.dart';
 
 Future<void> main() async {
   runApp(
@@ -37,6 +36,14 @@ class GameRoomApp extends StatelessWidget {
   }
 }
 
+enum ColorSeed {
+  indigo('Indigo', Colors.indigo);
+
+  const ColorSeed(this.label, this.color);
+  final String label;
+  final Color color;
+}
+
 class PaginaInicial extends StatefulWidget {
   const PaginaInicial({super.key});
 
@@ -46,14 +53,14 @@ class PaginaInicial extends StatefulWidget {
 
 class _PaginaInicialState extends State<PaginaInicial> {
   BannerAd? bannerAd;
+  final String _adUnitId = 'ca-app-pub-4860380403931913/4313648864';
 
   @override
   void initState() {
     super.initState();
-
     if (Platform.isAndroid) {
       BannerAd(
-        adUnitId: AdHelper.bannerAdUnitId,
+        adUnitId: _adUnitId,
         size: AdSize.banner,
         request: const AdRequest(),
         listener: BannerAdListener(
@@ -81,7 +88,8 @@ class _PaginaInicialState extends State<PaginaInicial> {
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return MaterialApp(
           theme: ThemeData(
-            brightness: const ColorScheme.light().brightness,
+            colorSchemeSeed: Colors.indigo,
+            brightness: const ColorScheme.dark().brightness,
             useMaterial3: true,
           ),
           home: Scaffold(
@@ -103,7 +111,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                         child: SizedBox(
                           child: Platform.isAndroid == true
                               ? bannerAds(context)
@@ -132,7 +140,6 @@ class _PaginaInicialState extends State<PaginaInicial> {
                                 );
                               },
                               child: Card(
-                                elevation: 6,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -180,6 +187,59 @@ class _PaginaInicialState extends State<PaginaInicial> {
                                   ],
                                 ),
                               ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return const Placeholder();
+                                    },
+                                  ),
+                                );
+                              },
+                              child: const Card(),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return const Placeholder();
+                                    },
+                                  ),
+                                );
+                              },
+                              child: const Card(),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return const Placeholder();
+                                    },
+                                  ),
+                                );
+                              },
+                              child: const Card(),
+                            ),
+                            const Card(),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return const Placeholder();
+                                    },
+                                  ),
+                                );
+                              },
+                              child: const Card(),
                             ),
                           ],
                         ),
