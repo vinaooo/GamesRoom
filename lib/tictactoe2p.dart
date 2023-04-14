@@ -10,8 +10,11 @@ import 'dart:math';
 
 import 'ad_helper.dart';
 
+Random random = Random();
+
 int player1Score = 0;
 int player2Score = 0;
+Color playerColor = Colors.green;
 String scoreName = 'Score';
 
 class TicTacToe2PPage extends StatefulWidget {
@@ -26,12 +29,19 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   List<List<String>> board =
       List.generate(3, (_) => List.generate(3, (_) => ''));
 
-  bool player1Turn = true;
+  bool player1Turn = random.nextBool();
 
   void _resetBoard() {
     setState(() {
       board = List.generate(3, (_) => List.generate(3, (_) => ''));
-      player1Turn = true;
+      // player1Turn = true;
+    });
+  }
+
+  void _resetScore() {
+    setState(() {
+      player1Score = 0;
+      player2Score = 0;
     });
   }
 
@@ -104,13 +114,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
-                // Text(
-                //   message,
-                //   style: const TextStyle(
-                //     fontSize: 24.0,
-                //     color: Colors.white,
-                //   ),
-                // ),
                 const SizedBox(height: 10.0),
               ],
             ),
@@ -123,9 +126,11 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
       },
     );
 
-    setState(() {
-      player1Turn = true;
-    });
+    // setState(
+    //   () {
+    //     player1Turn = random.nextBool();
+    //   },
+    // );
   }
 
   void _markBox(int row, int col) {
@@ -236,16 +241,19 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                 child: Text(
                   board[row][col],
                   style: TextStyle(
-                      fontFamily: 'chalk',
-                      fontSize: 80,
-                      color: player1Turn == true ? Colors.green : Colors.red,
-                      shadows: const [
-                        Shadow(
-                          color: Colors.black,
-                          offset: Offset(0.3, 0.3),
-                          blurRadius: 7,
-                        ),
-                      ]),
+                    fontFamily: 'chalk',
+                    fontSize: 100,
+                    color: board[row][col] == 'X' ? Colors.blue : Colors.pink,
+                    // shadows: [
+                    //   Shadow(
+                    //     color: board[row][col] == 'X'
+                    //         ? Colors.blueAccent
+                    //         : Colors.pinkAccent,
+                    //     offset: const Offset(0.3, 0.3),
+                    //     blurRadius: 7,
+                    //   ),
+                    // ],
+                  ),
                 ),
               ),
             ),
@@ -264,7 +272,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
         return MaterialApp(
           theme: ThemeData(
             colorSchemeSeed: Colors.indigo,
-            brightness: const ColorScheme.dark().brightness,
+            brightness: const ColorScheme.light().brightness,
             useMaterial3: true,
           ),
           home: SafeArea(
@@ -431,11 +439,11 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                               fontFamily: 'lcddot',
                               fontSize: fontSize * 0.09,
                               height: 0.8,
-                              color: const Color.fromARGB(255, 239, 184, 16),
+                              color: Colors.blue,
                               shadows: const [
                                 Shadow(
-                                  color: Colors.black,
-                                  offset: Offset(0.5, 0.5),
+                                  color: Colors.blueAccent,
+                                  offset: Offset(1, 1),
                                   blurRadius: 10,
                                 ),
                               ],
@@ -472,10 +480,10 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                               fontFamily: 'lcddot',
                               fontSize: fontSize * 0.09,
                               height: 0.8,
-                              color: const Color.fromARGB(255, 239, 184, 16),
+                              color: Colors.pink,
                               shadows: const [
                                 Shadow(
-                                  color: Colors.black,
+                                  color: Colors.pinkAccent,
                                   offset: Offset(0.5, 0.5),
                                   blurRadius: 10,
                                 ),
@@ -498,13 +506,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
         ],
       ),
     );
-  }
-
-  void _resetScore() {
-    setState(() {
-      player1Score = 0;
-      player2Score = 0;
-    });
   }
 
   Future<InitializationStatus> _initGoogleMobileAds() {
