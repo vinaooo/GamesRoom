@@ -55,9 +55,12 @@ class _PaginaInicialState extends State<PaginaInicial> {
   BannerAd? bannerAd;
   final String _adUnitId = 'ca-app-pub-4860380403931913/4313648864';
 
+  ThemeMode themeMode = ThemeMode.system;
+
   @override
   void initState() {
     super.initState();
+    //themeMode = useLightMode ? ThemeMode.light : ThemeMode.dark
     if (Platform.isAndroid) {
       BannerAd(
         adUnitId: _adUnitId,
@@ -87,10 +90,16 @@ class _PaginaInicialState extends State<PaginaInicial> {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return MaterialApp(
+          themeMode: themeMode,
           theme: ThemeData(
-            colorSchemeSeed: Colors.indigo,
-            brightness: const ColorScheme.dark().brightness,
+            colorScheme: lightDynamic,
+            brightness: Brightness.light,
             useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: darkDynamic,
+            useMaterial3: true,
+            brightness: Brightness.dark,
           ),
           home: Scaffold(
             appBar: AppBar(
