@@ -32,17 +32,25 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   bool player1Turn = random.nextBool();
 
   void _resetBoard() {
-    setState(() {
-      board = List.generate(3, (_) => List.generate(3, (_) => ''));
-      // player1Turn = true;
-    });
+    if (mounted) {
+      setState(
+        () {
+          board = List.generate(3, (_) => List.generate(3, (_) => ''));
+          // player1Turn = true;
+        },
+      );
+    }
   }
 
   void _resetScore() {
-    setState(() {
-      player1Score = 0;
-      player2Score = 0;
-    });
+    if (mounted) {
+      setState(
+        () {
+          player1Score = 0;
+          player2Score = 0;
+        },
+      );
+    }
   }
 
   void _showWinnerAnimation(String winner) {
@@ -135,10 +143,14 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
 
   void _markBox(int row, int col) {
     if (board[row][col] == '') {
-      setState(() {
-        board[row][col] = player1Turn ? 'X' : 'O';
-        player1Turn = !player1Turn;
-      });
+      if (mounted) {
+        setState(
+          () {
+            board[row][col] = player1Turn ? 'X' : 'O';
+            player1Turn = !player1Turn;
+          },
+        );
+      }
 
       _checkWinner();
     }
@@ -199,9 +211,13 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
         ),
         listener: BannerAdListener(
           onAdLoaded: (ad) {
-            setState(() {
-              bannerAd = ad as BannerAd;
-            });
+            if (mounted) {
+              setState(
+                () {
+                  bannerAd = ad as BannerAd;
+                },
+              );
+            }
           },
           onAdFailedToLoad: (ad, error) {
             // Releases an ad resource when it fails to load
@@ -243,16 +259,18 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                   style: TextStyle(
                     fontFamily: 'chalk',
                     fontSize: 100,
-                    color: board[row][col] == 'X' ? Colors.blue : Colors.pink,
-                    // shadows: [
-                    //   Shadow(
-                    //     color: board[row][col] == 'X'
-                    //         ? Colors.blueAccent
-                    //         : Colors.pinkAccent,
-                    //     offset: const Offset(0.3, 0.3),
-                    //     blurRadius: 7,
-                    //   ),
-                    // ],
+                    color: board[row][col] == 'X'
+                        ? const Color.fromARGB(200, 33, 149, 243)
+                        : const Color.fromARGB(150, 233, 30, 98),
+                    shadows: [
+                      Shadow(
+                        color: board[row][col] == 'X'
+                            ? const Color.fromARGB(70, 68, 137, 255)
+                            : const Color.fromARGB(70, 255, 64, 128),
+                        offset: const Offset(0.3, 0.3),
+                        blurRadius: 7,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -263,6 +281,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     );
   }
 
+  ThemeMode themeMode = ThemeMode.system;
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -270,10 +289,18 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return MaterialApp(
+          themeMode: themeMode,
           theme: ThemeData(
-            colorSchemeSeed: Colors.indigo,
-            brightness: const ColorScheme.light().brightness,
+            //colorSchemeSeed: Colors.indigo,
+            colorScheme: lightDynamic,
+            brightness: Brightness.light,
             useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            //colorSchemeSeed: Colors.indigo,
+            colorScheme: darkDynamic,
+            useMaterial3: true,
+            brightness: Brightness.dark,
           ),
           home: SafeArea(
             child: Scaffold(
