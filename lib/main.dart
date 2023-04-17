@@ -10,6 +10,8 @@ import 'firebase_options.dart';
 
 import 'tictactoe2p.dart';
 
+const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
+
 Future<void> main() async {
   runApp(
     const GameRoomApp(),
@@ -49,9 +51,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
   BannerAd? bannerAd;
   final String _adUnitId = 'ca-app-pub-4860380403931913/4313648864';
 
-  ThemeMode themeMode = ThemeMode.system;
-
-  static const _kFontFam = 'MyFlutterApp';
+  static const _kFontFam = 'iconFonts';
   static const String? _kFontPkg = null;
 
   static const IconData emoHappy =
@@ -151,6 +151,10 @@ class _PaginaInicialState extends State<PaginaInicial> {
   static const IconData ruby =
       IconData(0xf3c9, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 
+  IconData selectedIcon = Icons.person;
+
+  ThemeMode themeMode = ThemeMode.system;
+
   @override
   void initState() {
     super.initState();
@@ -242,40 +246,12 @@ class _PaginaInicialState extends State<PaginaInicial> {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    IconData? selectedIcon;
-                                    final List<IconData> icons = [
-                                      emoHappy,
-                                      emoWink,
-                                      emoUnhappy,
-                                      emoSleep,
-                                    ];
-
-                                    void _openIconSelector(
-                                        BuildContext context) async {
-                                      final result = await showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            title: Text('Select an icon'),
-                                            content: IconSelector(
-                                              icons: icons,
-                                              onSelect: (icon) =>
-                                                  Navigator.of(context)
-                                                      .pop(icon),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                      if (result != null) {
-                                        selectedIcon = result;
-                                      }
-                                    }
-
                                     return AlertDialog(
-                                      icon: selectedIcon != null
-                                          ? Icon(selectedIcon,
-                                              size: 100, weight: 400)
-                                          : null,
+                                      icon: const Icon(
+                                        emoHappy,
+                                        size: 100,
+                                        weight: 400,
+                                      ),
                                       title: const Text("Enter players name:"),
                                       content: Column(
                                         mainAxisSize: MainAxisSize.min,
@@ -283,21 +259,99 @@ class _PaginaInicialState extends State<PaginaInicial> {
                                           Padding(
                                             padding: const EdgeInsets.fromLTRB(
                                                 0, 4, 0, 4),
-                                            child: MyTextField(
-                                              prefixIcon: selectedIcon != null
-                                                  ? Icon(selectedIcon)
-                                                  : null,
+                                            child: TextField(
                                               onChanged: (value) {
                                                 player1Name = value;
                                               },
-                                              decoration: const InputDecoration(
+                                              decoration: InputDecoration(
+                                                prefixIcon: Align(
+                                                  widthFactor: 1.0,
+                                                  heightFactor: 1.0,
+                                                  child: IconButton(
+                                                    onPressed: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) =>
+                                                            IconPickerDialog(
+                                                          icons: const [
+                                                            emoHappy,
+                                                            emoWink,
+                                                            emoUnhappy,
+                                                            emoSleep,
+                                                            emoThumbsup,
+                                                            emoDevil,
+                                                            emoSurprised,
+                                                            emoTongue,
+                                                            emoCoffee,
+                                                            emoSunglasses,
+                                                            emoDispleased,
+                                                            emoGrin,
+                                                            emoAngry,
+                                                            emoSaint,
+                                                            emoCry,
+                                                            emoSquint,
+                                                            emoLaugh,
+                                                            emoWink2,
+                                                            smiley,
+                                                            user,
+                                                            smile,
+                                                            frown,
+                                                            meh,
+                                                            female,
+                                                            male,
+                                                            child,
+                                                            school,
+                                                            falling,
+                                                            skull,
+                                                            monsterSkull,
+                                                            userSecret,
+                                                            soccerBall,
+                                                            soccer,
+                                                            dribble,
+                                                            giraffe,
+                                                            crown,
+                                                            crownPlus,
+                                                            crownMinus,
+                                                            acorn,
+                                                            carrot,
+                                                            cheese,
+                                                            chickenLeg,
+                                                            crabClaw,
+                                                            footprint,
+                                                            gecko,
+                                                            rabbit,
+                                                            squirrel,
+                                                            ruby,
+                                                          ],
+                                                          onIconSelected:
+                                                              (icon) {
+                                                            setState(() {
+                                                              selectedIcon =
+                                                                  icon; // <-- Atualiza o ícone selecionado
+                                                            });
+                                                          },
+                                                        ),
+                                                      ).then((value) {
+                                                        if (value != null) {
+                                                          setState(() {
+                                                            selectedIcon =
+                                                                value;
+                                                          });
+                                                        }
+                                                      });
+                                                    },
+                                                    icon: Icon(
+                                                      selectedIcon ??
+                                                          Icons.person,
+                                                    ),
+                                                  ),
+                                                ),
                                                 contentPadding:
-                                                    EdgeInsets.all(4),
-                                                border: OutlineInputBorder(),
+                                                    const EdgeInsets.all(4),
+                                                border:
+                                                    const OutlineInputBorder(),
                                                 labelText: "Player 1",
                                               ),
-                                              onSelectIcon: () =>
-                                                  _openIconSelector(context),
                                             ),
                                           ),
                                           Padding(
@@ -495,73 +549,49 @@ class _PaginaInicialState extends State<PaginaInicial> {
   }
 }
 
-class IconSelector extends StatelessWidget {
+class IconPickerDialog extends StatefulWidget {
   final List<IconData> icons;
-  final Function(IconData) onSelect;
+  final void Function(IconData selectedIcon) onIconSelected;
 
-  IconSelector({required this.icons, required this.onSelect});
+  const IconPickerDialog({
+    Key? key,
+    required this.icons,
+    required this.onIconSelected,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 150.0,
-      child: GridView.builder(
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
-        itemBuilder: (context, index) {
-          final icon = icons[index];
-          return IconButton(
-            icon: Icon(icon),
-            onPressed: () => onSelect(icon),
-          );
-        },
-        itemCount: icons.length,
-      ),
-    );
-  }
+  _IconPickerDialogState createState() => _IconPickerDialogState();
 }
 
-class MyTextField extends StatefulWidget {
-  @override
-  _MyTextFieldState createState() => _MyTextFieldState();
-}
-
-class _MyTextFieldState extends State<MyTextField> {
+class _IconPickerDialogState extends State<IconPickerDialog> {
   IconData? selectedIcon;
-  final List<IconData> icons = [
-    Icons.home,
-    Icons.work,
-    Icons.school,
-    Icons.favorite
-  ];
-
-  void _openIconSelector(BuildContext context) async {
-    final result = await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Select an icon'),
-          content: IconSelector(
-            icons: icons,
-            onSelect: (icon) => Navigator.of(context).pop(icon),
-          ),
-        );
-      },
-    );
-    if (result != null) {
-      setState(() {
-        selectedIcon = result;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        prefixIcon: IconButton(
-          icon: Icon(selectedIcon ?? Icons.home),
-          onPressed: () => _openIconSelector(context),
+    return AlertDialog(
+      content: SizedBox(
+        width: double.maxFinite,
+        child: GridView.count(
+          crossAxisCount: 6,
+          mainAxisSpacing: 1,
+          crossAxisSpacing: 1,
+          shrinkWrap: true,
+          children: widget.icons
+              .map(
+                (iconData) => InkWell(
+                  onTap: () {
+                    Navigator.of(context).pop(iconData);
+                  },
+                  child: Icon(
+                    iconData,
+                    size: 24,
+                    color: selectedIcon == iconData
+                        ? Theme.of(context).primaryColorDark
+                        : null,
+                  ),
+                ),
+              )
+              .toList(),
         ),
       ),
     );
