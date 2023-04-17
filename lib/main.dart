@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -36,14 +38,6 @@ class GameRoomApp extends StatelessWidget {
   }
 }
 
-enum ColorSeed {
-  indigo('Indigo', Colors.indigo);
-
-  const ColorSeed(this.label, this.color);
-  final String label;
-  final Color color;
-}
-
 class PaginaInicial extends StatefulWidget {
   const PaginaInicial({super.key});
 
@@ -57,9 +51,110 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
   ThemeMode themeMode = ThemeMode.system;
 
+  static const _kFontFam = 'MyFlutterApp';
+  static const String? _kFontPkg = null;
+
+  static const IconData emoHappy =
+      IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoWink =
+      IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoUnhappy =
+      IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoSleep =
+      IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoThumbsup =
+      IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoDevil =
+      IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoSurprised =
+      IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoTongue =
+      IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoCoffee =
+      IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoSunglasses =
+      IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoDispleased =
+      IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData dribble =
+      IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoGrin =
+      IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoAngry =
+      IconData(0xe80d, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoSaint =
+      IconData(0xe80e, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoCry =
+      IconData(0xe80f, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData smiley =
+      IconData(0xe810, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoSquint =
+      IconData(0xe811, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoLaugh =
+      IconData(0xe812, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData emoWink2 =
+      IconData(0xe813, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData giraffe =
+      IconData(0xe81b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData school =
+      IconData(0xe834, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData soccer =
+      IconData(0xe837, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData crown =
+      IconData(0xe844, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData crownPlus =
+      IconData(0xe845, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData crownMinus =
+      IconData(0xe846, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData acorn =
+      IconData(0xe901, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData carrot =
+      IconData(0xe95c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData cheese =
+      IconData(0xe961, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData chickenLeg =
+      IconData(0xe964, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData crabClaw =
+      IconData(0xe974, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData falling =
+      IconData(0xe9b9, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData footprint =
+      IconData(0xe9d2, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData gecko =
+      IconData(0xe9de, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData monsterSkull =
+      IconData(0xea43, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData rabbit =
+      IconData(0xea76, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData skull =
+      IconData(0xeaa1, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData soccerBall =
+      IconData(0xeaa8, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData user =
+      IconData(0xf007, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData smile =
+      IconData(0xf118, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData frown =
+      IconData(0xf119, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData meh =
+      IconData(0xf11a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData female =
+      IconData(0xf182, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData male =
+      IconData(0xf183, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData child =
+      IconData(0xf1ae, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData userSecret =
+      IconData(0xf21b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData squirrel =
+      IconData(0xf347, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData ruby =
+      IconData(0xf3c9, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+
   @override
   void initState() {
     super.initState();
+    if (!mounted) return;
     //themeMode = useLightMode ? ThemeMode.light : ThemeMode.dark
     if (Platform.isAndroid) {
       BannerAd(
@@ -68,9 +163,11 @@ class _PaginaInicialState extends State<PaginaInicial> {
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (ad) {
-            setState(() {
-              bannerAd = ad as BannerAd;
-            });
+            if (mounted) {
+              setState(() {
+                bannerAd = ad as BannerAd;
+              });
+            }
           },
           onAdFailedToLoad: (ad, error) {
             // Releases an ad resource when it fails to load
@@ -84,6 +181,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
       ).load();
     }
   }
+
+  String player1Name = '';
+  String player2Name = '';
 
   @override
   Widget build(BuildContext context) {
@@ -139,13 +239,117 @@ class _PaginaInicialState extends State<PaginaInicial> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return const TicTacToe2PPage();
-                                    },
-                                  ),
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    IconData? selectedIcon;
+                                    final List<IconData> icons = [
+                                      emoHappy,
+                                      emoWink,
+                                      emoUnhappy,
+                                      emoSleep,
+                                    ];
+
+                                    void _openIconSelector(
+                                        BuildContext context) async {
+                                      final result = await showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: Text('Select an icon'),
+                                            content: IconSelector(
+                                              icons: icons,
+                                              onSelect: (icon) =>
+                                                  Navigator.of(context)
+                                                      .pop(icon),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                      if (result != null) {
+                                        selectedIcon = result;
+                                      }
+                                    }
+
+                                    return AlertDialog(
+                                      icon: selectedIcon != null
+                                          ? Icon(selectedIcon,
+                                              size: 100, weight: 400)
+                                          : null,
+                                      title: const Text("Enter players name:"),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 4, 0, 4),
+                                            child: MyTextField(
+                                              prefixIcon: selectedIcon != null
+                                                  ? Icon(selectedIcon)
+                                                  : null,
+                                              onChanged: (value) {
+                                                player1Name = value;
+                                              },
+                                              decoration: const InputDecoration(
+                                                contentPadding:
+                                                    EdgeInsets.all(4),
+                                                border: OutlineInputBorder(),
+                                                labelText: "Player 1",
+                                              ),
+                                              onSelectIcon: () =>
+                                                  _openIconSelector(context),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 4, 0, 4),
+                                            child: TextField(
+                                              onChanged: (value) {
+                                                player2Name = value;
+                                              },
+                                              decoration: const InputDecoration(
+                                                contentPadding:
+                                                    EdgeInsets.all(4),
+                                                border: OutlineInputBorder(),
+                                                labelText: "Player 2",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text("Cancel"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text("OK"),
+                                          onPressed: () {
+                                            if (player1Name == '') {
+                                              player1Name = 'Player 1';
+                                            }
+                                            if (player2Name == '') {
+                                              player2Name = 'Player 2';
+                                            }
+                                            Navigator.of(context).pop();
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) {
+                                                  return TicTacToe2PPage(
+                                                    player1Name: player1Name,
+                                                    player2Name: player2Name,
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                               },
                               child: Card(
@@ -160,7 +364,8 @@ class _PaginaInicialState extends State<PaginaInicial> {
                                               const Stack(
                                                 children: [
                                                   Icon(
-                                                    Icons.tag_sharp,
+                                                    Icons.tag_rounded,
+                                                    weight: 1,
                                                     size: 140,
                                                   ),
                                                   Positioned(
@@ -287,5 +492,78 @@ class _PaginaInicialState extends State<PaginaInicial> {
         ),
       );
     });
+  }
+}
+
+class IconSelector extends StatelessWidget {
+  final List<IconData> icons;
+  final Function(IconData) onSelect;
+
+  IconSelector({required this.icons, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 150.0,
+      child: GridView.builder(
+        gridDelegate:
+            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+        itemBuilder: (context, index) {
+          final icon = icons[index];
+          return IconButton(
+            icon: Icon(icon),
+            onPressed: () => onSelect(icon),
+          );
+        },
+        itemCount: icons.length,
+      ),
+    );
+  }
+}
+
+class MyTextField extends StatefulWidget {
+  @override
+  _MyTextFieldState createState() => _MyTextFieldState();
+}
+
+class _MyTextFieldState extends State<MyTextField> {
+  IconData? selectedIcon;
+  final List<IconData> icons = [
+    Icons.home,
+    Icons.work,
+    Icons.school,
+    Icons.favorite
+  ];
+
+  void _openIconSelector(BuildContext context) async {
+    final result = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Select an icon'),
+          content: IconSelector(
+            icons: icons,
+            onSelect: (icon) => Navigator.of(context).pop(icon),
+          ),
+        );
+      },
+    );
+    if (result != null) {
+      setState(() {
+        selectedIcon = result;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      decoration: InputDecoration(
+        prefixIcon: IconButton(
+          icon: Icon(selectedIcon ?? Icons.home),
+          onPressed: () => _openIconSelector(context),
+        ),
+      ),
+    );
   }
 }

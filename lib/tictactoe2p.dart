@@ -1,4 +1,5 @@
 // ignore_for_file: avoid_print
+
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -18,7 +19,14 @@ Color playerColor = Colors.green;
 String scoreName = 'Score';
 
 class TicTacToe2PPage extends StatefulWidget {
-  const TicTacToe2PPage({Key? key}) : super(key: key);
+  const TicTacToe2PPage({
+    Key? key,
+    required this.player1Name,
+    required this.player2Name,
+  }) : super(key: key);
+
+  final String player1Name;
+  final String player2Name;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -201,6 +209,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   @override
   void initState() {
     super.initState();
+    if (!mounted) return;
     _resetScore();
     if (Platform.isAndroid) {
       BannerAd(
@@ -445,7 +454,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                       Column(
                         children: [
                           Text(
-                            'Player 1',
+                            widget.player1Name,
                             style: TextStyle(
                               fontSize: fontSize * 0.024,
                               color: Colors.white,
@@ -486,7 +495,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            'Player 2',
+                            widget.player2Name,
                             style: TextStyle(
                               fontSize: fontSize * 0.024,
                               color: Colors.white,
