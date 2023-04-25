@@ -1,16 +1,69 @@
+// <a target="_blank" href="https://icons8.com/icon/VL53FP6Gk195/tic-tac-toe">Tic Tac Toe
+//</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+
 // ignore_for_file: unused_field
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:io' show Platform;
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 import 'tictactoe2p.dart';
+import 'my_flutter_app_icons.dart';
+import 'icon_picker.dart';
+import 'lista_jogos.dart';
 
-const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
+const _brandBlue = Color(0xFF1E88E5);
+//bool _isDemoUsingDynamicColors = false;
+
+String player1Name = 'Player1';
+Icon player1Icon = const Icon(MyIcons.emoHappy);
+Color player1Color = Colors.amber;
+String player2Name = 'Player2';
+Icon player2Icon = const Icon(MyIcons.crabClaw);
+Color player2Color = Colors.amber;
+
+CustomColors lightCustomColors = const CustomColors(danger: Color(0xFFE53935));
+CustomColors darkCustomColors = const CustomColors(danger: Color(0xFFEF9A9A));
+
+var brightness =
+    SchedulerBinding.instance.platformDispatcher.platformBrightness;
+bool isLightMode = brightness == Brightness.light;
+
+@immutable
+class CustomColors extends ThemeExtension<CustomColors> {
+  const CustomColors({
+    required this.danger,
+  });
+
+  final Color? danger;
+
+  @override
+  CustomColors copyWith({Color? danger}) {
+    return CustomColors(
+      danger: danger ?? this.danger,
+    );
+  }
+
+  @override
+  CustomColors lerp(ThemeExtension<CustomColors>? other, double t) {
+    if (other is! CustomColors) {
+      return this;
+    }
+    return CustomColors(
+      danger: Color.lerp(danger, other.danger, t),
+    );
+  }
+
+  CustomColors harmonized(ColorScheme dynamic) {
+    return copyWith(danger: danger!.harmonizeWith(dynamic.primary));
+  }
+}
 
 Future<void> main() async {
   runApp(
@@ -22,6 +75,8 @@ Future<void> main() async {
   );
 }
 
+ThemeMode themeMode = ThemeMode.system;
+
 class GameRoomApp extends StatelessWidget {
   const GameRoomApp({super.key});
 
@@ -29,137 +84,109 @@ class GameRoomApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
         builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+      ColorScheme lightColorScheme;
+      ColorScheme darkColorScheme;
+      if (lightDynamic != null && darkDynamic != null) {
+        // On Android S+ devices, use the provided dynamic color scheme.
+        // (Recommended) Harmonize the dynamic color scheme' built-in semantic colors.
+        lightColorScheme = lightDynamic.harmonized();
+        // (Optional) Customize the scheme as desired. For example, one might
+        // want to use a brand color to override the dynamic [ColorScheme.secondary].
+        lightColorScheme = lightColorScheme.copyWith(secondary: _brandBlue);
+        // (Optional) If applicable, harmonize custom colors.
+        lightCustomColors = lightCustomColors.harmonized(lightColorScheme);
+
+        // Repeat for the dark color scheme.
+        darkColorScheme = darkDynamic.harmonized();
+        darkColorScheme = darkColorScheme.copyWith(secondary: _brandBlue);
+        darkCustomColors = darkCustomColors.harmonized(darkColorScheme);
+
+        //_isDemoUsingDynamicColors = true; // ignore, only for demo purposes
+      } else {
+        // Otherwise, use fallback schemes.
+        lightColorScheme = ColorScheme.fromSeed(
+          seedColor: _brandBlue,
+        );
+        darkColorScheme = ColorScheme.fromSeed(
+          seedColor: _brandBlue,
+          brightness: Brightness.dark,
+        );
+      }
+
       return MaterialApp(
+        themeMode: themeMode,
         theme: ThemeData(
-            useMaterial3: true,
-            brightness: const ColorScheme.light().brightness,
-            colorScheme: lightDynamic),
-        home: const PaginaInicial(),
+          colorScheme: lightDynamic,
+          brightness: Brightness.light,
+          useMaterial3: true,
+        ),
+        darkTheme: ThemeData(
+          colorScheme: darkDynamic,
+          useMaterial3: true,
+          brightness: Brightness.dark,
+        ),
+        home: FutureBuilder(
+            future: DynamicColorPlugin.getCorePalette(),
+            builder: (context, snapshot) {
+              final corePalette = snapshot.data;
+              return GridView1(
+                  corePalette: corePalette ??
+                      CorePalette()); // passando corePalette apenas se não for nulo
+            }),
       );
     });
   }
 }
 
-class PaginaInicial extends StatefulWidget {
-  const PaginaInicial({super.key});
+class CustomCard extends StatelessWidget {
+  final String title;
+
+  final Function onTap;
+  const CustomCard({super.key, required this.title, required this.onTap});
 
   @override
-  State<PaginaInicial> createState() => _PaginaInicialState();
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        onTap();
+      },
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(title),
+        ),
+      ),
+    );
+  }
 }
 
-class _PaginaInicialState extends State<PaginaInicial> {
+class GridView1 extends StatefulWidget {
+  final CorePalette corePalette; // novo parâmetro
+
+  const GridView1({Key? key, required this.corePalette}) : super(key: key);
+
+  @override
+  State<GridView1> createState() => _GridView1State();
+}
+
+class _GridView1State extends State<GridView1> with TickerProviderStateMixin {
+  late final List<AnimationController> _controllers = List.generate(
+    10,
+    (index) => AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    ),
+  );
+
   BannerAd? bannerAd;
   final String _adUnitId = 'ca-app-pub-4860380403931913/4313648864';
 
-  static const _kFontFam = 'iconFonts';
-  static const String? _kFontPkg = null;
-
-  static const IconData emoHappy =
-      IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoWink =
-      IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoUnhappy =
-      IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoSleep =
-      IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoThumbsup =
-      IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoDevil =
-      IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoSurprised =
-      IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoTongue =
-      IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoCoffee =
-      IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoSunglasses =
-      IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoDispleased =
-      IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData dribble =
-      IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoGrin =
-      IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoAngry =
-      IconData(0xe80d, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoSaint =
-      IconData(0xe80e, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoCry =
-      IconData(0xe80f, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData smiley =
-      IconData(0xe810, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoSquint =
-      IconData(0xe811, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoLaugh =
-      IconData(0xe812, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData emoWink2 =
-      IconData(0xe813, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData giraffe =
-      IconData(0xe81b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData school =
-      IconData(0xe834, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData soccer =
-      IconData(0xe837, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData crown =
-      IconData(0xe844, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData crownPlus =
-      IconData(0xe845, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData crownMinus =
-      IconData(0xe846, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData acorn =
-      IconData(0xe901, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData carrot =
-      IconData(0xe95c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData cheese =
-      IconData(0xe961, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData chickenLeg =
-      IconData(0xe964, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData crabClaw =
-      IconData(0xe974, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData falling =
-      IconData(0xe9b9, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData footprint =
-      IconData(0xe9d2, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData gecko =
-      IconData(0xe9de, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData monsterSkull =
-      IconData(0xea43, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData rabbit =
-      IconData(0xea76, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData skull =
-      IconData(0xeaa1, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData soccerBall =
-      IconData(0xeaa8, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData user =
-      IconData(0xf007, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData smile =
-      IconData(0xf118, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData frown =
-      IconData(0xf119, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData meh =
-      IconData(0xf11a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData female =
-      IconData(0xf182, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData male =
-      IconData(0xf183, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData child =
-      IconData(0xf1ae, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData userSecret =
-      IconData(0xf21b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData squirrel =
-      IconData(0xf347, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData ruby =
-      IconData(0xf3c9, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-
   IconData selectedIcon = Icons.person;
-
-  ThemeMode themeMode = ThemeMode.system;
 
   @override
   void initState() {
     super.initState();
     if (!mounted) return;
-    //themeMode = useLightMode ? ThemeMode.light : ThemeMode.dark
     if (Platform.isAndroid) {
       BannerAd(
         adUnitId: _adUnitId,
@@ -186,412 +213,243 @@ class _PaginaInicialState extends State<PaginaInicial> {
     }
   }
 
-  String player1Name = '';
-  String player2Name = '';
-
   @override
-  Widget build(BuildContext context) {
-    return DynamicColorBuilder(
-      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        return MaterialApp(
-          themeMode: themeMode,
-          theme: ThemeData(
-            colorScheme: lightDynamic,
-            brightness: Brightness.light,
-            useMaterial3: true,
+  void dispose() {
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _goToJogo1(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          icon: const Icon(
+            //color: Color(corePalette?.primary.get(70) ?? 0xFFffffff),
+
+            // lightColorScheme
+            //     .primaryContainer,
+            MyIcons.emoHappy,
+            size: 100,
+            weight: 400,
           ),
-          darkTheme: ThemeData(
-            colorScheme: darkDynamic,
-            useMaterial3: true,
-            brightness: Brightness.dark,
-          ),
-          home: Scaffold(
-            appBar: AppBar(
-              title: const Text(
-                'Game Room',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.9,
+          title: const Text("Enter players name:"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                child: TextField(
+                  onChanged: (value) {
+                    player1Name = value;
+                  },
+                  decoration: const InputDecoration(
+                    prefixIcon: Align(
+                      widthFactor: 1.0,
+                      heightFactor: 1.0,
+                      child: IconPicker(),
+                    ),
+                    contentPadding: EdgeInsets.all(4),
+                    border: OutlineInputBorder(),
+                    labelText: "Player 1",
+                  ),
                 ),
               ),
-              centerTitle: true,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                child: TextField(
+                  onChanged: (value) {
+                    player2Name = value;
+                  },
+                  decoration: const InputDecoration(
+                    prefixIcon: Align(
+                      widthFactor: 1.0,
+                      heightFactor: 1.0,
+                      child: IconPicker(),
+                    ),
+                    contentPadding: EdgeInsets.all(4),
+                    border: OutlineInputBorder(),
+                    labelText: "Player 2",
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
-            body: FutureBuilder(
-              future: _initGoogleMobileAds(),
-              builder: (context, AsyncSnapshot<void> snapshot) {
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                        child: SizedBox(
-                          child: Platform.isAndroid == true
-                              ? bannerAds(context)
-                              : null,
-                        ),
-                      ),
-                      Center(
-                        child: GridView(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  mainAxisSpacing: 16,
-                                  crossAxisSpacing: 16),
-                          scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      icon: const Icon(
-                                        emoHappy,
-                                        size: 100,
-                                        weight: 400,
-                                      ),
-                                      title: const Text("Enter players name:"),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 4, 0, 4),
-                                            child: TextField(
-                                              onChanged: (value) {
-                                                player1Name = value;
-                                              },
-                                              decoration: InputDecoration(
-                                                prefixIcon: Align(
-                                                  widthFactor: 1.0,
-                                                  heightFactor: 1.0,
-                                                  child: IconButton(
-                                                    onPressed: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (context) =>
-                                                            IconPickerDialog(
-                                                          icons: const [
-                                                            emoHappy,
-                                                            emoWink,
-                                                            emoUnhappy,
-                                                            emoSleep,
-                                                            emoThumbsup,
-                                                            emoDevil,
-                                                            emoSurprised,
-                                                            emoTongue,
-                                                            emoCoffee,
-                                                            emoSunglasses,
-                                                            emoDispleased,
-                                                            emoGrin,
-                                                            emoAngry,
-                                                            emoSaint,
-                                                            emoCry,
-                                                            emoSquint,
-                                                            emoLaugh,
-                                                            emoWink2,
-                                                            smiley,
-                                                            user,
-                                                            smile,
-                                                            frown,
-                                                            meh,
-                                                            female,
-                                                            male,
-                                                            child,
-                                                            school,
-                                                            falling,
-                                                            skull,
-                                                            monsterSkull,
-                                                            userSecret,
-                                                            soccerBall,
-                                                            soccer,
-                                                            dribble,
-                                                            giraffe,
-                                                            crown,
-                                                            crownPlus,
-                                                            crownMinus,
-                                                            acorn,
-                                                            carrot,
-                                                            cheese,
-                                                            chickenLeg,
-                                                            crabClaw,
-                                                            footprint,
-                                                            gecko,
-                                                            rabbit,
-                                                            squirrel,
-                                                            ruby,
-                                                          ],
-                                                          onIconSelected:
-                                                              (icon) {
-                                                            setState(() {
-                                                              selectedIcon =
-                                                                  icon; // <-- Atualiza o ícone selecionado
-                                                            });
-                                                          },
-                                                        ),
-                                                      ).then((value) {
-                                                        if (value != null) {
-                                                          setState(() {
-                                                            selectedIcon =
-                                                                value;
-                                                          });
-                                                        }
-                                                      });
-                                                    },
-                                                    icon: Icon(
-                                                      selectedIcon ??
-                                                          Icons.person,
-                                                    ),
-                                                  ),
-                                                ),
-                                                contentPadding:
-                                                    const EdgeInsets.all(4),
-                                                border:
-                                                    const OutlineInputBorder(),
-                                                labelText: "Player 1",
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 4, 0, 4),
-                                            child: TextField(
-                                              onChanged: (value) {
-                                                player2Name = value;
-                                              },
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.all(4),
-                                                border: OutlineInputBorder(),
-                                                labelText: "Player 2",
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text("Cancel"),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                        TextButton(
-                                          child: const Text("OK"),
-                                          onPressed: () {
-                                            if (player1Name == '') {
-                                              player1Name = 'Player 1';
-                                            }
-                                            if (player2Name == '') {
-                                              player2Name = 'Player 2';
-                                            }
-                                            Navigator.of(context).pop();
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) {
-                                                  return TicTacToe2PPage(
-                                                    player1Name: player1Name,
-                                                    player2Name: player2Name,
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              child: Card(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    FittedBox(
-                                      child: Stack(
-                                        children: [
-                                          Stack(
-                                            children: [
-                                              const Stack(
-                                                children: [
-                                                  Icon(
-                                                    Icons.tag_rounded,
-                                                    weight: 1,
-                                                    size: 140,
-                                                  ),
-                                                  Positioned(
-                                                    bottom: 22,
-                                                    right: 22,
-                                                    child: Icon(
-                                                      Icons.circle_outlined,
-                                                      color: Colors.green,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                              Positioned(
-                                                top: 22,
-                                                left: 22,
-                                                child: Icon(
-                                                  Icons.close,
-                                                  color:
-                                                      const ColorScheme.light()
-                                                          .error,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const Positioned(
-                                            bottom: 0,
-                                            left: 28,
-                                            child: Text('TicTacToe'),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return const Placeholder();
-                                    },
-                                  ),
-                                );
-                              },
-                              child: const Card(),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return const Placeholder();
-                                    },
-                                  ),
-                                );
-                              },
-                              child: const Card(),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return const Placeholder();
-                                    },
-                                  ),
-                                );
-                              },
-                              child: const Card(),
-                            ),
-                            const Card(),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return const Placeholder();
-                                    },
-                                  ),
-                                );
-                              },
-                              child: const Card(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                if (player1Name == '') {
+                  player1Name = 'Player 1';
+                }
+                if (player2Name == '') {
+                  player2Name = 'Player 2';
+                }
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return TicTacToe2PPage(
+                        player1Name: player1Name,
+                        player1Icon: player1Icon,
+                        player1Color: player1Color,
+                        player2Name: player2Name,
+                        player2Icon: player2Icon,
+                        player2Color: player2Color,
+                      );
+                    },
                   ),
                 );
               },
             ),
-          ),
+          ],
         );
       },
     );
   }
 
-  Future<InitializationStatus> _initGoogleMobileAds() {
-    return MobileAds.instance.initialize();
+  void _goToJogo2(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
   }
 
-  static bannerAds(BuildContext context) {
-    return Builder(builder: (ctx) {
-      final BannerAd myBanner = BannerAd(
-        adUnitId: 'ca-app-pub-4860380403931913/4313648864',
-        request: const AdRequest(),
-        listener: const BannerAdListener(),
-        size: AdSize.banner,
-      );
-      myBanner.load();
-      return Container(
-        alignment: Alignment.center,
-        width: myBanner.size.width.toDouble(),
-        height: myBanner.size.height.toDouble(),
-        child: AdWidget(
-          ad: myBanner,
-          key: Key(myBanner.hashCode.toString()),
-        ),
-      );
-    });
+  void _goToJogo3(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
   }
-}
 
-class IconPickerDialog extends StatefulWidget {
-  final List<IconData> icons;
-  final void Function(IconData selectedIcon) onIconSelected;
+  void _goToJogo4(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
+  }
 
-  const IconPickerDialog({
-    Key? key,
-    required this.icons,
-    required this.onIconSelected,
-  }) : super(key: key);
+  void _goToJogo5(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
+  }
 
-  @override
-  _IconPickerDialogState createState() => _IconPickerDialogState();
-}
+  void _goToJogo6(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
+  }
 
-class _IconPickerDialogState extends State<IconPickerDialog> {
-  IconData? selectedIcon;
+  void _goToJogo7(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
+  }
+
+  void _goToJogo8(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
+  }
+
+  void _goToJogo9(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
+  }
+
+  void _goToJogo10(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const Placeholder();
+    }));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      content: SizedBox(
-        width: double.maxFinite,
+    double w = MediaQuery.of(context).size.width;
+    int columnCount = 3;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Games Room"),
+        centerTitle: true,
+      ),
+      body: AnimationLimiter(
         child: GridView.count(
-          crossAxisCount: 6,
-          mainAxisSpacing: 1,
-          crossAxisSpacing: 1,
-          shrinkWrap: true,
-          children: widget.icons
-              .map(
-                (iconData) => InkWell(
-                  onTap: () {
-                    Navigator.of(context).pop(iconData);
-                  },
-                  child: Icon(
-                    iconData,
-                    size: 24,
-                    color: selectedIcon == iconData
-                        ? Theme.of(context).primaryColorDark
-                        : null,
+          physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics()),
+          padding: EdgeInsets.all(w / 60),
+          crossAxisCount: columnCount,
+          children: List.generate(
+            jogos.length,
+            (int index) {
+              final jogo = jogos[index];
+              return AnimationConfiguration.staggeredGrid(
+                position: index,
+                duration: const Duration(milliseconds: 500),
+                columnCount: columnCount,
+                child: ScaleAnimation(
+                  duration: const Duration(milliseconds: 900),
+                  curve: Curves.fastLinearToSlowEaseIn,
+                  child: FadeInAnimation(
+                    child: GestureDetector(
+                      onTap: () {
+                        switch (index % 10) {
+                          case 0:
+                            _goToJogo1(context);
+                            break;
+                          case 1:
+                            _goToJogo2(context);
+                            break;
+                          case 2:
+                            _goToJogo3(context);
+                            break;
+                          case 3:
+                            _goToJogo4(context);
+                            break;
+                          case 4:
+                            _goToJogo5(context);
+                            break;
+                          case 5:
+                            _goToJogo6(context);
+                            break;
+                          case 6:
+                            _goToJogo7(context);
+                            break;
+                          case 7:
+                            _goToJogo8(context);
+                            break;
+                          case 8:
+                            _goToJogo9(context);
+                            break;
+                          case 9:
+                            _goToJogo10(context);
+                            break;
+                        }
+                      },
+                      child: Card(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            jogo.icone,
+                            const SizedBox(height: 10),
+                            Text(jogo.titulo),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              )
-              .toList(),
+              );
+            },
+          ),
         ),
       ),
     );
