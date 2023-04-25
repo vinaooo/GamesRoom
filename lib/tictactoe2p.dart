@@ -2,6 +2,7 @@
 
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:gamesroom/main.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:io' show Platform;
 import 'package:random_text_reveal/random_text_reveal.dart';
@@ -22,22 +23,30 @@ class TicTacToe2PPage extends StatefulWidget {
   const TicTacToe2PPage({
     Key? key,
     required this.player1Name,
+    required this.player1Icon,
+    required this.player1Color,
     required this.player2Name,
+    required this.player2Icon,
+    required this.player2Color,
   }) : super(key: key);
 
   final String player1Name;
+  final Icon player1Icon;
+  final Color player1Color;
   final String player2Name;
+  final Icon player2Icon;
+  final Color player2Color;
 
   @override
   // ignore: library_private_types_in_public_api
   _TicTacToe2PPageState createState() => _TicTacToe2PPageState();
 }
 
+bool player1Turn = random.nextBool();
+
 class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   List<List<String>> board =
       List.generate(3, (_) => List.generate(3, (_) => ''));
-
-  bool player1Turn = random.nextBool();
 
   void _resetBoard() {
     if (mounted) {
@@ -141,12 +150,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
         _resetBoard();
       },
     );
-
-    // setState(
-    //   () {
-    //     player1Turn = random.nextBool();
-    //   },
-    // );
   }
 
   void _markBox(int row, int col) {
@@ -268,14 +271,12 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                   style: TextStyle(
                     fontFamily: 'chalk',
                     fontSize: 100,
-                    color: board[row][col] == 'X'
-                        ? const Color.fromARGB(200, 33, 149, 243)
-                        : const Color.fromARGB(150, 233, 30, 98),
+                    color: board[row][col] == 'X' ? player1Color : player2Color,
                     shadows: [
                       Shadow(
                         color: board[row][col] == 'X'
-                            ? const Color.fromARGB(70, 68, 137, 255)
-                            : const Color.fromARGB(70, 255, 64, 128),
+                            ? player1Color.withOpacity(0.5)
+                            : player1Color.withOpacity(0.5),
                         offset: const Offset(0.3, 0.3),
                         blurRadius: 7,
                       ),
@@ -369,6 +370,8 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                                       ),
                                     ),
                                     SizedBox(height: heightSize),
+                                    if (player1Turn) Text('X joga'),
+                                    if (!player1Turn) Text('O joga'),
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         elevation: 3,
@@ -384,10 +387,11 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                                 ),
                               ),
                               const Flexible(
-                                  fit: FlexFit.tight,
-                                  child: SizedBox(
-                                    height: 100,
-                                  ))
+                                fit: FlexFit.tight,
+                                child: SizedBox(
+                                  height: 100,
+                                ),
+                              )
                             ],
                           ),
                         ),
@@ -475,14 +479,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                               fontFamily: 'lcddot',
                               fontSize: fontSize * 0.09,
                               height: 0.8,
-                              color: Colors.blue,
-                              shadows: const [
-                                Shadow(
-                                  color: Colors.blueAccent,
-                                  offset: Offset(1, 1),
-                                  blurRadius: 10,
-                                ),
-                              ],
+                              color: player1Color,
                             ),
                             randomString: Source.digits,
                             curve: Curves.easeIn,
@@ -516,14 +513,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                               fontFamily: 'lcddot',
                               fontSize: fontSize * 0.09,
                               height: 0.8,
-                              color: Colors.pink,
-                              shadows: const [
-                                Shadow(
-                                  color: Colors.pinkAccent,
-                                  offset: Offset(0.5, 0.5),
-                                  blurRadius: 10,
-                                ),
-                              ],
+                              color: player2Color,
                             ),
                             randomString: Source.digits,
                             curve: Curves.easeIn,
