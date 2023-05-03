@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file:  unused_import
 
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +9,7 @@ import 'package:random_text_reveal/random_text_reveal.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:neon/neon.dart';
 import 'dart:math';
-
-import 'ad_helper.dart';
+import '../const.dart';
 
 Random random = Random();
 
@@ -18,6 +17,27 @@ int player1Score = 0;
 int player2Score = 0;
 Color playerColor = Colors.green;
 String scoreName = 'Score';
+
+class FixedNeonText extends StatelessWidget {
+  const FixedNeonText({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Neon(
+      text: scoreName,
+      color: Colors.purple,
+      fontSize: fontSize * 0.045,
+      font: NeonFont.TextMeOne,
+      flickeringText: true,
+      flickeringLetters: [
+        Random().nextInt(scoreName.length),
+        Random().nextInt(scoreName.length)
+      ],
+    );
+  }
+}
 
 class TicTacToe2PPage extends StatefulWidget {
   const TicTacToe2PPage({
@@ -43,6 +63,7 @@ class TicTacToe2PPage extends StatefulWidget {
 }
 
 bool player1Turn = random.nextBool();
+double fontSize = 0;
 
 class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   List<List<String>> board =
@@ -76,19 +97,24 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     Color color = Colors.green;
 
     if (winner == 'X') {
-      player1Score++;
+      setState(() {
+        player1Score = player1Score + 1;
+      });
+
       message = 'Player 1 Wins!';
-    } else if (winner == 'O') {
-      player2Score++;
+    } else if (winner == 'o') {
+      setState(() {
+        player2Score = player2Score + 1;
+      });
       message = 'Player 2 Wins!';
     } else {
       message = 'It\'s a Tie!';
       icon = Icons.sentiment_neutral;
-      color = Colors.yellow;
+      color = Colors.yellow.harmonizeWith(Colors.purple);
     }
-    if (winner == 'X' || winner == 'O') {
+    if (winner == 'X' || winner == 'o') {
       icon = Icons.mood;
-      color = Colors.green;
+      color = Colors.green.harmonizeWith(Colors.purple);
     }
     showModalBottomSheet<void>(
       context: context,
@@ -114,7 +140,8 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                 Icon(
                   icon,
                   size: 50.0,
-                  color: Colors.white,
+                  color: Colors.grey.harmonizeWith(
+                      Colors.yellow.harmonizeWith(Colors.purple)),
                 ),
                 const SizedBox(height: 10.0),
                 RandomTextReveal(
@@ -157,12 +184,11 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
       if (mounted) {
         setState(
           () {
-            board[row][col] = player1Turn ? 'X' : 'O';
+            board[row][col] = player1Turn ? 'X' : 'o';
             player1Turn = !player1Turn;
           },
         );
       }
-
       _checkWinner();
     }
   }
@@ -170,7 +196,6 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   @override
   void dispose() {
     super.dispose();
-    bannerAd?.dispose();
   }
 
   void _checkWinner() {
@@ -192,11 +217,9 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
     for (List<String> line in lines) {
       if (line.every((item) => item == 'X')) {
         _showWinnerAnimation('X');
-        //_disableBoard();
         return;
-      } else if (line.every((item) => item == 'O')) {
-        _showWinnerAnimation('O');
-        //_disableBoard();
+      } else if (line.every((item) => item == 'o')) {
+        _showWinnerAnimation('o');
         return;
       }
     }
@@ -209,37 +232,12 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   }
 
   BannerAd? bannerAd;
+
   @override
   void initState() {
     super.initState();
     if (!mounted) return;
     _resetScore();
-    if (Platform.isAndroid) {
-      BannerAd(
-        adUnitId: AdHelper.bannerAdUnitId,
-        size: AdSize.banner,
-        request: const AdRequest(
-          keywords: <String>[],
-        ),
-        listener: BannerAdListener(
-          onAdLoaded: (ad) {
-            if (mounted) {
-              setState(
-                () {
-                  bannerAd = ad as BannerAd;
-                },
-              );
-            }
-          },
-          onAdFailedToLoad: (ad, error) {
-            // Releases an ad resource when it fails to load
-            ad.dispose();
-            print(
-                'Ad load failed (code=${error.code} message=${error.message})');
-          },
-        ),
-      ).load();
-    }
   }
 
   Widget _buildBox(int row, int col, bool right, bool bottom) {
@@ -265,24 +263,23 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                           : Colors.transparent),
                 ),
               ),
-              child: Center(
-                child: Text(
-                  board[row][col],
-                  style: TextStyle(
-                    fontFamily: 'chalk',
-                    fontSize: 100,
-                    color: board[row][col] == 'X' ? player1Color : player2Color,
-                    shadows: [
-                      Shadow(
-                        color: board[row][col] == 'X'
-                            ? player1Color.withOpacity(0.5)
-                            : player1Color.withOpacity(0.5),
-                        offset: const Offset(0.3, 0.3),
-                        blurRadius: 7,
-                      ),
-                    ],
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    board[row][col],
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      height: board[row][col] == 'X' ? 1.5 : 0,
+                      fontFamily: 'chalk',
+                      fontSize: board[row][col] == 'X' ? 100 : 140,
+                      color: board[row][col] == 'X'
+                          ? player1Color.harmonizeWith(Colors.white)
+                          : player2Color.harmonizeWith(Colors.transparent),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );
@@ -296,125 +293,92 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final heightSize = screenHeight * 0.00675;
-    return DynamicColorBuilder(
-      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        return MaterialApp(
-          themeMode: themeMode,
-          theme: ThemeData(
-            //colorSchemeSeed: Colors.indigo,
-            colorScheme: lightDynamic,
-            brightness: Brightness.light,
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData(
-            //colorSchemeSeed: Colors.indigo,
-            colorScheme: darkDynamic,
-            useMaterial3: true,
-            brightness: Brightness.dark,
-          ),
-          home: SafeArea(
-            child: Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                title: const Text('Tic Tac Toe'),
-              ),
-              body: FutureBuilder<void>(
-                  future: _initGoogleMobileAds(),
-                  builder: (context, AsyncSnapshot<void> snapshot) {
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              scoreTable(context),
-                              const SizedBox(height: 10.0),
-                              SizedBox(
-                                child: Column(
-                                  children: [
-                                    Card(
-                                      elevation: 5,
-                                      child: Wrap(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              _buildBox(0, 0, true, true),
-                                              _buildBox(0, 1, true, true),
-                                              _buildBox(0, 2, false, true),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              _buildBox(1, 0, true, true),
-                                              _buildBox(1, 1, true, true),
-                                              _buildBox(1, 2, false, true),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              _buildBox(2, 0, true, false),
-                                              _buildBox(2, 1, true, false),
-                                              _buildBox(2, 2, false, false),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(height: heightSize),
-                                    if (player1Turn) Text('X joga'),
-                                    if (!player1Turn) Text('O joga'),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        elevation: 3,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0)),
-                                        minimumSize: const Size(50, 30),
-                                      ),
-                                      onPressed: _resetBoard,
-                                      child: const Text('Reset'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Flexible(
-                                fit: FlexFit.tight,
-                                child: SizedBox(
-                                  height: 100,
-                                ),
-                              )
-                            ],
-                          ),
+    return MainPage(
+      title: 'Tic Tac Toe',
+      child: Column(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                scoreTable(context),
+                const SizedBox(height: 10.0),
+                SizedBox(
+                  child: Column(
+                    children: [
+                      Card(
+                        elevation: 2,
+                        child: Wrap(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                _buildBox(0, 0, true, true),
+                                _buildBox(0, 1, true, true),
+                                _buildBox(0, 2, false, true),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                _buildBox(1, 0, true, true),
+                                _buildBox(1, 1, true, true),
+                                _buildBox(1, 2, false, true),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                _buildBox(2, 0, true, false),
+                                _buildBox(2, 1, true, false),
+                                _buildBox(2, 2, false, false),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    );
-                  }),
+                      ),
+                      SizedBox(height: heightSize),
+                      if (player1Turn) const Text('X joga'),
+                      if (!player1Turn) const Text('O joga'),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          minimumSize: const Size(50, 30),
+                        ),
+                        onPressed: _resetBoard,
+                        child: const Text('Reset'),
+                      ),
+                    ],
+                  ),
+                ),
+                const Flexible(
+                  fit: FlexFit.tight,
+                  child: SizedBox(
+                    height: 100,
+                  ),
+                )
+              ],
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
   Widget scoreTable(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     MediaQueryData queryData = MediaQuery.of(context);
-    double fontSize = queryData.size.height;
+    fontSize = queryData.size.height;
     return SizedBox(
       height: screenHeight * 0.26,
       child: Column(
         children: [
           Expanded(
             child: Card(
+              elevation: 2,
+              //Theme.of(context).colorScheme.surfaceVariant,
               child: Column(
                 children: [
                   Expanded(
@@ -424,17 +388,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                         SizedBox(
                           width: fontSize * 0.14,
                         ),
-                        Neon(
-                          text: scoreName,
-                          color: Colors.purple,
-                          fontSize: fontSize * 0.045,
-                          font: NeonFont.TextMeOne,
-                          flickeringText: true,
-                          flickeringLetters: [
-                            Random().nextInt(scoreName.length),
-                            Random().nextInt(scoreName.length)
-                          ],
-                        ),
+                        const FixedNeonText(),
                         SizedBox(
                           width: fontSize * 0.14,
                           child: TextButton(
@@ -524,7 +478,7 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
                       ),
                     ],
                   ),
-                  bannerAds(context),
+                  //bannerAds(context),
                 ],
               ),
             ),
@@ -532,30 +486,5 @@ class _TicTacToe2PPageState extends State<TicTacToe2PPage> {
         ],
       ),
     );
-  }
-
-  Future<InitializationStatus> _initGoogleMobileAds() {
-    return MobileAds.instance.initialize();
-  }
-
-  static bannerAds(BuildContext context) {
-    return Builder(builder: (ctx) {
-      final BannerAd myBanner = BannerAd(
-        adUnitId: 'ca-app-pub-4860380403931913/4313648864',
-        request: const AdRequest(),
-        listener: const BannerAdListener(),
-        size: AdSize.banner,
-      );
-      myBanner.load();
-      return Container(
-        alignment: Alignment.center,
-        width: myBanner.size.width.toDouble(),
-        height: myBanner.size.height.toDouble(),
-        child: AdWidget(
-          ad: myBanner,
-          key: Key(myBanner.hashCode.toString()),
-        ),
-      );
-    });
   }
 }
