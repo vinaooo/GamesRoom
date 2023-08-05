@@ -196,8 +196,8 @@ class HomePageState extends State<HomePage> {
               final form = _formKey.currentState!;
               if (form.validate()) {
                 form.save();
-                Navigator.pop(
-                    context, form.fields['palavra']!.value.toString());
+                // Navigator.pop(
+                //     context, form.fields['palavra']!.value.toString());
               }
             },
             child: const Text('OK'),
